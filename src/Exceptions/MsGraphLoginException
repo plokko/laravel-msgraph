@@ -1,0 +1,7 @@
+<?php
+namespace plokko\MsGraph\Exceptions;
+
+
+class MsGraphLoginException extends \Exception{
+    
+}

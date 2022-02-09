@@ -1,0 +1,36 @@
+{
+    "name": "plokko/laravel-msgraph",
+    "description": "",
+    "keywords": [
+        "laravel",
+        "microsoft",
+        "azure",
+        "microsoft graph"
+    ],
+    "require": {
+        "php": ">=7.3",
+        "league/oauth2-client": "^2.6",
+        "microsoft/microsoft-graph": "^1.52",
+    },
+    "require-dev": {},
+    "authors": [
+        {
+            "name": "Francesco Pellerone"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "plokko\\MsGraph\\": "src"
+        }
+    },
+    "extra":{
+        "laravel":{
+            "providers":[
+                "plokko\\MsGraph\\MsGraphServiceProvider"
+            ],
+            "aliases": {
+                "MsGraph": "plokko\\MsGraph\\Facades\\MsGraph"
+            }
+        }
+    }
+}
