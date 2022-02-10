@@ -3,6 +3,7 @@
 namespace plokko\MsGraph\Entities;
 
 use plokko\MsGraph\MsGraph;
+use \Microsoft\Graph\Model\User as MsUser;
 
 class UserList extends BaseEntity
 {
@@ -102,7 +103,7 @@ class UserList extends BaseEntity
     function get()
     {
         $r = $this->getQuery()
-                ->setReturnType(\Microsoft\Graph\Model\User::class)
+                ->setReturnType(MsUser::class)
                 ->execute();
 
         return $r;
