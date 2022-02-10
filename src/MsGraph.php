@@ -2,6 +2,7 @@
 
 namespace plokko\MsGraph;
 
+use Illuminate\Http\Request;
 use \League\OAuth2\Client\Provider\GenericProvider;
 use \League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessTokenInterface;
