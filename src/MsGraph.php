@@ -1,4 +1,5 @@
 <?php
+
 namespace plokko\MsGraph;
 
 use \League\OAuth2\Client\Provider\GenericProvider;
@@ -8,28 +9,30 @@ use Microsoft\Graph\Model\User as MsUser;
 use plokko\MsGraph\Exceptions\InvalidAuthState;
 use plokko\MsGraph\Exceptions\LoginException;
 
-class MsGraph{
+class MsGraph
+{
 
     /**@var array */
     private $oauth_opt;
 
     private $sessionPrefix = 'msgraph';
 
-    function __construct(array $oauth_opt=null)
+    function __construct(array $oauth_opt = null)
     {
 
-        $this->oauth_opt = $oauth_opt??[
-            'clientId'                => config('ms-graph.appId'),
-            'clientSecret'            => config('ms-graph.appSecret'),
-            'redirectUri'             => config('ms-graph.redirectUri'),
-            'urlAuthorize'            => config('ms-graph.authority').config('ms-graph.authorizeEndpoint'),
-            'urlAccessToken'          => config('ms-graph.authority').config('ms-graph.tokenEndpoint'),
-            'urlResourceOwnerDetails' => '',
-            'scopes'                  => config('ms-graph.scopes')
-        ];
+        $this->oauth_opt = $oauth_opt ?? [
+                'clientId' => config('ms-graph.appId'),
+                'clientSecret' => config('ms-graph.appSecret'),
+                'redirectUri' => config('ms-graph.redirectUri'),
+                'urlAuthorize' => config('ms-graph.authority') . config('ms-graph.authorizeEndpoint'),
+                'urlAccessToken' => config('ms-graph.authority') . config('ms-graph.tokenEndpoint'),
+                'urlResourceOwnerDetails' => '',
+                'scopes' => config('ms-graph.scopes')
+            ];
     }
 
-    protected function getOauthClient(){
+    protected function getOauthClient()
+    {
         return new  GenericProvider($this->oauth_opt);
     }
 
@@ -38,16 +41,16 @@ class MsGraph{
      */
     public function redirectToLogin()
     {
-      // Initialize the OAuth client
-      $oauthClient = $this->getOauthClient();
+        // Initialize the OAuth client
+        $oauthClient = $this->getOauthClient();
 
-      $authUrl = $oauthClient->getAuthorizationUrl();
+        $authUrl = $oauthClient->getAuthorizationUrl();
 
-      // Save client state so we can validate in callback
-      session([$this->sessionPrefix.'.oauthState' => $oauthClient->getState()]);
+        // Save client state so we can validate in callback
+        session([$this->sessionPrefix . '.oauthState' => $oauthClient->getState()]);
 
-      // Redirect to AAD signin page
-      return redirect()->away($authUrl);
+        // Redirect to AAD signin page
+        return redirect()->away($authUrl);
     }
 
 
@@ -55,51 +58,53 @@ class MsGraph{
      * @param Request $request
      * @throws LoginException
      */
-    public function loginCallback(Request $request)
+    public function loginCallback(Request $request = null)
     {
-      // Validate state
-      $expectedState = session($this->sessionPrefix.'.oauthState');
-      $request->session()->forget($this->sessionPrefix.'.oauthState');
-      $providedState = $request->query('state');
+        if (!$request)
+            $request = request();
+        // Validate state
+        $expectedState = session($this->sessionPrefix . '.oauthState');
+        $request->session()->forget($this->sessionPrefix . '.oauthState');
+        $providedState = $request->query('state');
 
-      if (!isset($expectedState)) {
-        // If there is no expected state in the session,
-        // do nothing and redirect to the home page.
-          return null;
-        //return redirect(config('ms-graph.redirect_login'));
-      }
-
-      if (!isset($providedState) || $expectedState != $providedState) {
-          throw new InvalidAuthState();
-      }
-
-      // Authorization code should be in the "code" query param
-      $authCode = $request->query('code');
-      if (isset($authCode)) {
-        // Initialize the OAuth client
-        $oauthClient = $this->getOauthClient();
-
-        try {
-          // Make the token request
-          $accessToken = $oauthClient->getAccessToken('authorization_code', [
-            'code' => $authCode
-          ]);
-            $this->onAccessToken($accessToken);
+        if (!isset($expectedState)) {
+            // If there is no expected state in the session,
+            // do nothing and redirect to the home page.
+            return null;
+            //return redirect(config('ms-graph.redirect_login'));
         }
-        catch (IdentityProviderException $e) {
-          return redirect('/')
-            ->with('error', 'Error requesting access token')
-            ->with('errorDetail', json_encode($e->getResponseBody()));
-        }
-      }
 
-      throw new LoginException($request->query('error'),$request->query('error_description'));
+        if (!isset($providedState) || $expectedState != $providedState) {
+            throw new InvalidAuthState();
+        }
+
+        // Authorization code should be in the "code" query param
+        $authCode = $request->query('code');
+        if (isset($authCode)) {
+            // Initialize the OAuth client
+            $oauthClient = $this->getOauthClient();
+
+            try {
+                // Make the token request
+                $accessToken = $oauthClient->getAccessToken('authorization_code', [
+                    'code' => $authCode
+                ]);
+                $this->onAccessToken($accessToken);
+            } catch (IdentityProviderException $e) {
+                return redirect('/')
+                    ->with('error', 'Error requesting access token')
+                    ->with('errorDetail', json_encode($e->getResponseBody()));
+            }
+        }
+
+        throw new LoginException($request->query('error'), $request->query('error_description'));
     }
 
 
-    protected function onAccessToken(AccessTokenInterface $accessToken){
+    protected function onAccessToken(AccessTokenInterface $accessToken)
+    {
         // TODO: TEMPORARY FOR TESTING!
-        abort(501,'Access token received:'.$accessToken->getToken());
+        abort(501, 'Access token received:' . $accessToken->getToken());
 
         $graph = new Graph();
         $graph->setAccessToken($accessToken->getToken());
@@ -108,6 +113,7 @@ class MsGraph{
             ->setReturnType(MsUser::class)
             ->execute();
 
-        dd($accessToken,$user);
+        //TODO
+        dd($accessToken, $user);
     }
 }
