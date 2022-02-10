@@ -4,15 +4,19 @@
  * @see https://docs.microsoft.com/en-us/graph/tutorials/php?tutorial-step=3
  */
 return [
-  'tenant'            => env('MSGRAPH_OAUTH_TENANT', 'common'),
-  'appId'             => env('MSGRAPH_OAUTH_APP_ID', ''),
-  'appSecret'         => env('MSGRAPH_OAUTH_APP_SECRET', ''),
-  'redirectUri'       => env('MSGRAPH_OAUTH_REDIRECT_URI', ''),
-  'scopes'            => env('MSGRAPH_OAUTH_SCOPES', 'openid profile offline_access user.read mailboxsettings.read calendars.readwrite'),
-  'authority'         => env('MSGRAPH_OAUTH_AUTHORITY', 'https://login.microsoftonline.com/'.env('MSGRAPH_OAUTH_TENANT', 'common')),
-  'authorizeEndpoint' => env('MSGRAPH_OAUTH_AUTHORIZE_ENDPOINT', '/oauth2/v2.0/authorize'),
-  'tokenEndpoint'     => env('MSGRAPH_OAUTH_TOKEN_ENDPOINT', '/oauth2/v2.0/token'),
+    'tenant' => env('MSGRAPH_TENANT', 'common'),
+    'clientId' => env('MSGRAPH_CLIENT_ID', ''),
+    'clientSecret' => env('MSGRAPH_CLIENT_SECRET', ''),
 
-  ///
-  'redirect_login'    => '/',
+    // User login callback
+    'redirectUri' => env('MSGRAPH_REDIRECT_URI', ''),
+
+    //Scope
+    'scopes' => env('MSGRAPH_OAUTH_SCOPES', 'openid profile offline_access user.read mailboxsettings.read calendars.readwrite'),
+
+    // URI to redirect after login
+    'redirect_login' => '/',
+
+    // Graph API 'v1.0' or 'beta', leave null for default
+    'apiVersion' => null,
 ];

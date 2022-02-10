@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use \League\OAuth2\Client\Provider\GenericProvider;
 use \League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessTokenInterface;
+use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model\User as MsUser;
+use plokko\MsGraph\Entities\User;
 use plokko\MsGraph\Exceptions\InvalidAuthState;
 use plokko\MsGraph\Exceptions\LoginException;
 
@@ -20,15 +22,15 @@ class MsGraph
 
     function __construct(array $oauth_opt = null)
     {
-
+        $authority = 'https://login.microsoftonline.com/'.config('ms-graph.tenant');
         $this->oauth_opt = $oauth_opt ?? [
-                'clientId' => config('ms-graph.appId'),
-                'clientSecret' => config('ms-graph.appSecret'),
+                'clientId' => config('ms-graph.clientId'),
+                'clientSecret' => config('ms-graph.clientSecret'),
                 'redirectUri' => config('ms-graph.redirectUri'),
-                'urlAuthorize' => config('ms-graph.authority') . config('ms-graph.authorizeEndpoint'),
-                'urlAccessToken' => config('ms-graph.authority') . config('ms-graph.tokenEndpoint'),
+                'urlAuthorize' => $authority. '/oauth2/v2.0/authorize',
+                'urlAccessToken' => $authority .'/oauth2/v2.0/token',
                 'urlResourceOwnerDetails' => '',
-                'scopes' => config('ms-graph.scopes')
+                'scopes' => config('ms-graph.scopes'),
             ];
     }
 
@@ -116,5 +118,34 @@ class MsGraph
 
         //TODO
         dd($accessToken, $user);
+    }
+
+    protected function getServerAccessToken(){
+        //TODO: cache, refresh
+        $oauthClient = $this->getOauthClient();
+        try {
+            // Try to get an access token using the client credentials grant.
+            return $oauthClient->getAccessToken('client_credentials',[
+                'scope' => 'https://graph.microsoft.com/.default'
+            ]);
+        } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
+            // Failed to get the access token
+            exit($e->getMessage());
+        }
+    }
+    function graph(){
+
+        $graph = new Graph();
+        //$graph->setBaseUrl("https://graph.microsoft.com/")
+        if(config('ms-graph.apiVersion')){
+            $graph->setApiVersion(config('ms-graph.apiVersion'));
+        }
+        $graph->setAccessToken($this->getServerAccessToken());
+        return $graph;
+    }
+
+
+    function User(){
+        return new User($this);
     }
 }
