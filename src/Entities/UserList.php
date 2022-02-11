@@ -100,6 +100,10 @@ class UserList extends BaseEntity
         return $q;
     }
 
+    /**
+     * @return \Microsoft\Graph\Model\User[]
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     function get()
     {
         $r = $this->getQuery()

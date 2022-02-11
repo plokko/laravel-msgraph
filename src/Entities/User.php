@@ -19,50 +19,6 @@ class User extends BaseEntity{
 
 
     /**
-     * Create a new user
-     * @param \Microsoft\Graph\Model\User $user
-     * @return void
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Microsoft\Graph\Exception\GraphException
-     */
-    function create(MsUser $user,$password=null,$accountEnabled=null,$forcePasswordChange=true){
-        $data = $user->getProperties();
-        if(empty($data['accountEnabled'])||$accountEnabled!==null){
-            $data['accountEnabled'] = $accountEnabled!==false;
-        }
-        if(empty($data['password'])||$password!==null){
-            $data['password'] = $password;
-        }
-
-        if($forcePasswordChange){
-            $data['passwordProfile']=[
-                'forceChangePasswordNextSignIn' => $forcePasswordChange,
-                'password' => $data['password'],
-            ];
-            unset($data['password']);
-        }
-        /*
-         required fields:
-        "accountEnabled": true,
-          "displayName": "Adele Vance",
-          "mailNickname": "AdeleV",
-          "userPrincipalName": "AdeleV@contoso.onmicrosoft.com",
-          "passwordProfile" : {
-            "forceChangePasswordNextSignIn": true,
-            "password": "xWwvJ]6NMw+bWH-d"
-          }
-         */
-
-        $q = $this->msGraph->graph()
-            ->createRequest('POST','/users')
-            ->attachBody($data)
-            ->execute()
-            ;
-
-        return $q;
-    }
-
-    /**
      * Get an user by id
      * @param string $id User id ex: "87d349ed-44d7-43e1-9a83-5f2406dee5bd"
      * @return GraphResponse|mixed
@@ -106,4 +62,110 @@ class User extends BaseEntity{
         }
     }
 
+    /**
+     * Create a new user
+     * @param \Microsoft\Graph\Model\User|array $user
+     * @return void
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Microsoft\Graph\Exception\GraphException
+     */
+    function create($user,$password=null,$accountEnabled=null,$forcePasswordChange=false){
+        $data = null;
+        if(is_array($user)){
+            $data = $user;
+        }elseif($user instanceof \Microsoft\Graph\Model\User){
+            $data = $user->getProperties();
+        }else{
+            throw new \UnexpectedValueException('Unexpected parameter');
+        }
+
+        ////
+        if(empty($data['accountEnabled'])||$accountEnabled!==null){
+            $data['accountEnabled'] = $accountEnabled!==false;
+        }
+        if(empty($data['password'])||$password!==null){
+            if($password!==null)
+                $data['password'] = $password;
+        }
+
+        if($forcePasswordChange){
+            $data['passwordProfile']=[
+                'forceChangePasswordNextSignIn' => $forcePasswordChange,
+                'password' => $data['password'],
+            ];
+            unset($data['password']);
+        }
+
+        ////
+        $missingFields = [];
+        foreach(['accountEnabled','displayName','mailNickname','userPrincipalName'] AS $k){
+            if(empty($data[$k]))
+                $missingFields[] = $k;
+        }
+        if(empty($data['password']) && empty($data['passwordProfile']) ){
+            $missingFields[] = 'password';
+        }
+        if(count($missingFields)>0){
+            throw new \UnexpectedValueException('Missing required fields: '.implode(',',$missingFields));
+        }
+
+        ////
+        $q = $this->msGraph->graph()
+            ->createRequest('POST','/users')
+            ->attachBody($data)
+            ->execute()
+            ;
+
+        return $q;
+    }
+
+    /**
+     * @param \Microsoft\Graph\Model\User|array $user
+     * @return void
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Microsoft\Graph\Exception\GraphException
+     */
+    function update($user){
+        $data = null;
+        if(is_array($user)){
+            $data = $user;
+        }elseif($user instanceof \Microsoft\Graph\Model\User){
+            $data = $user->getProperties();
+        }else{
+            throw new \UnexpectedValueException('Unexpected parameter');
+        }
+        ////
+        $cnd = '';
+        if(!empty($data['id'])){
+            $cnd='/'.urlencode($data['id']);
+        }elseif(!empty($data['userPrincipalName'])){
+            $cnd='(\''.urlencode($data['userPrincipalName']).'\')';
+        }else{
+            throw new \UnexpectedValueException('Fields id or userPrincipalName are required.');
+        }
+
+        ////
+        $q = $this->msGraph->graph()
+            ->createRequest('PATCH','/users'.$cnd)
+            ->attachBody($data)
+            ->execute();
+    }
+
+
+    function delete($id){
+        return $this->msGraph->graph()
+            ->createRequest('DELETE','/users/'.str_replace(['/','$','?',''],'',$id))
+            ->execute();
+    }
+
+    /**
+     * @param string $principalName
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Microsoft\Graph\Exception\GraphException
+     */
+    function deleteByPrincipalName($principalName){
+        return $this->msGraph->graph()
+                ->createRequest('DELETE','/users(\''.urlencode($principalName).'\')')
+                ->execute();
+    }
 }

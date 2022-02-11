@@ -120,6 +120,9 @@ class MsGraph
         dd($accessToken, $user);
     }
 
+    /**
+     * @return \League\OAuth2\Client\Token\AccessToken|AccessTokenInterface|void
+     */
     protected function getServerAccessToken(){
         //TODO: cache, refresh
         $oauthClient = $this->getOauthClient();
@@ -133,6 +136,10 @@ class MsGraph
             exit($e->getMessage());
         }
     }
+
+    /**
+     * @return Graph
+     */
     function graph(){
 
         $graph = new Graph();
