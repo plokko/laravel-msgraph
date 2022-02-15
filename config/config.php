@@ -9,7 +9,7 @@ return [
     'clientSecret' => env('MSGRAPH_CLIENT_SECRET', ''),
 
     // User login callback
-    'redirectUri' => strpos(env('MSGRAPH_REDIRECT_URI', ''),'//')===false?url(env('MSGRAPH_REDIRECT_URI', '/auth/callback')):env('MSGRAPH_REDIRECT_URI'),
+    'redirectUri' => strpos(env('MSGRAPH_REDIRECT_URI', ''),'//')===false?env('APP_URL').(env('MSGRAPH_REDIRECT_URI', '/auth/callback')):env('MSGRAPH_REDIRECT_URI'),
 
     //Scope
     'scopes' => env('MSGRAPH_OAUTH_SCOPES', 'openid profile offline_access user.read mailboxsettings.read calendars.readwrite'),

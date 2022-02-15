@@ -65,9 +65,9 @@ class User extends BaseEntity{
     /**
      * Create a new user
      * @param \Microsoft\Graph\Model\User|array $user
-     * @return void
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Microsoft\Graph\Exception\GraphException
+     * @return \Microsoft\Graph\Model\User Created user
      */
     function create($user,$password=null,$accountEnabled=null,$forcePasswordChange=false){
         $data = null;
@@ -80,9 +80,10 @@ class User extends BaseEntity{
         }
 
         ////
-        if(empty($data['accountEnabled'])||$accountEnabled!==null){
+        if(empty($data['accountEnabled']) || $accountEnabled!==null){
             $data['accountEnabled'] = $accountEnabled!==false;
         }
+
         if(empty($data['password'])||$password!==null){
             if($password!==null)
                 $data['password'] = $password;
@@ -91,15 +92,16 @@ class User extends BaseEntity{
         if($forcePasswordChange){
             $data['passwordProfile']=[
                 'forceChangePasswordNextSignIn' => $forcePasswordChange,
-                'password' => $data['password'],
             ];
+            if(isset($data['password']))
+                $data['passwordProfile']['password'] = $data['password'];
             unset($data['password']);
         }
 
         ////
         $missingFields = [];
         foreach(['accountEnabled','displayName','mailNickname','userPrincipalName'] AS $k){
-            if(empty($data[$k]))
+            if(!isset($data[$k])|| $data[$k]===null || $data[$k]==='')
                 $missingFields[] = $k;
         }
         if(empty($data['password']) && empty($data['passwordProfile']) ){
@@ -113,6 +115,7 @@ class User extends BaseEntity{
         $q = $this->msGraph->graph()
             ->createRequest('POST','/users')
             ->attachBody($data)
+            ->setReturnType(MsUser::class)
             ->execute()
             ;
 
@@ -145,7 +148,7 @@ class User extends BaseEntity{
         }
 
         ////
-        $q = $this->msGraph->graph()
+        return $this->msGraph->graph()
             ->createRequest('PATCH','/users'.$cnd)
             ->attachBody($data)
             ->execute();
