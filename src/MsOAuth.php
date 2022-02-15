@@ -15,11 +15,12 @@ use plokko\MsGraph\Exceptions\LoginException;
 class MsOAuth
 {
 
+    private array
+        $oauth_opt,
+        $userFields = ['id','displayName','mail','mailboxSettings','userPrincipalName',];
     private
-        array $oauth_opt,
         $cachePrefix,
         $sessionPrefix='ms-graph-oauth',
-        $userFields = ['id','displayName','mail','mailboxSettings','userPrincipalName',],
         /**@var \Illuminate\Contracts\Cache\Repository **/
         $cache;
 

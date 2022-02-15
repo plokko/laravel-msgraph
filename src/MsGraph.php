@@ -13,7 +13,7 @@ use plokko\MsGraph\Entities\UserAuth;
 use plokko\MsGraph\Exceptions\InvalidAuthState;
 use plokko\MsGraph\Exceptions\LoginException;
 
-class MsGraph implements MsGraphAuthInterface
+class MsGraph
 {
     private MsOAuth $oauth;
 
@@ -22,7 +22,7 @@ class MsGraph implements MsGraphAuthInterface
         $authority = 'https://login.microsoftonline.com/'.config('ms-graph.tenant');
         $redirectUri = config('ms-graph.redirectUri');
 
-        $this->oauth = new MsOauth($oauth_opt ?? [
+        $this->oauth = new MsOAuth($oauth_opt ?? [
                 'clientId' => config('ms-graph.clientId'),
                 'clientSecret' => config('ms-graph.clientSecret'),
                 'redirectUri' => $redirectUri,
