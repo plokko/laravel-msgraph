@@ -45,7 +45,8 @@ class MsOAuth
      * @return \Illuminate\Http\RedirectResponse
      */
     public function redirectToAuthorizationUrl(){
-        $authUrl = $this->getAuthorizationUrl();
+        $oauthClient = $this->getOauthClient();
+        $authUrl = $oauthClient->getAuthorizationUrl();
 
         // Save client state so we can validate in callback
         session([$this->sessionPrefix . '.oauthState' => $oauthClient->getState()]);

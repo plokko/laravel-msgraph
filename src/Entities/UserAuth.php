@@ -16,7 +16,8 @@ class UserAuth extends BaseEntity
 {
 
     private
-        MsOAuth $oauth,
+        MsOAuth $oauth;
+    private
         $sessionPrefix='ms-oauth';
 
     function __construct(MsGraph $instance,MsOAuth $oauth)
