@@ -38,6 +38,11 @@ class UserList extends BaseEntity
     function filter($filter)
     {
         $this->opts['filter'] = $filter;
+        return $this;
+    }
+
+    function filterNotGuests(){
+        return $this->filter("userType ne 'guest'");
     }
 
     function orderBy($field = null)
