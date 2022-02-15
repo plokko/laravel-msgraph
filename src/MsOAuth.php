@@ -87,7 +87,7 @@ class MsOAuth
         $authCode = $request->query('code');
         if (isset($authCode)) {
             // Initialize the OAuth client
-            $oauthClient = $this->oauth->getOauthClient();
+            $oauthClient = $this->getOauthClient();
 
             try {
                 // Make the token request
