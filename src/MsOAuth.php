@@ -106,9 +106,9 @@ class MsOAuth
                     ->execute();
                 /**@var MsUser $user**/
 
-                if($user->id){
+                if($user->getId()){
                     //SAVE ACCESS TOKEN
-                    $this->saveToken('id:'.$user->id,$accessToken);
+                    $this->saveToken('id:'.$user->getId(),$accessToken);
                 }
                 return $user;
                 ///---
