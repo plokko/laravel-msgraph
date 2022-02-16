@@ -91,7 +91,7 @@ class User extends BaseEntity{
 
         if($forcePasswordChange){
             $data['passwordProfile']=[
-                'forceChangePasswordNextSignIn' => $forcePasswordChange,
+                'forceChangePasswordNextSignIn' => !!$forcePasswordChange,
             ];
             if(isset($data['password']))
                 $data['passwordProfile']['password'] = $data['password'];
