@@ -35,6 +35,16 @@ class UserAuth extends BaseEntity
         return $this->oauth->redirectToAuthorizationUrl();
     }
 
+    public function redirectToSelectUser()
+    {
+        return $this->oauth->redirectToAuthorizationUrl([
+            'prompt'=> 'select_account', //login, none, select_account, and consent.
+        ]);
+    }
+
+    public function getAuthorizationUrl(){
+        return $this->oauth->getAuthorizationUrl();
+    }
 
     /**
      * @param Request $request
@@ -49,5 +59,14 @@ class UserAuth extends BaseEntity
 
     protected function storeAccessToken(){
 
+    }
+
+    /**
+     * Return the access token given a Microsoft User
+     * @param Microsoft\Graph\Model\User $msUser
+     * @return AccessTokenInterface|null Client token or null if not present
+     */
+    public function getUserAccessToken(MsUser $msUser){
+        return $this->oauth->getUserAccessToken($msUser->getId());
     }
 }

@@ -17,18 +17,18 @@ class MsOAuth
 
     private array
         $oauth_opt,
-        $userFields = ['id','displayName','mail','mailboxSettings','userPrincipalName',];
+        $userFields = ['id', 'displayName', 'mail', 'mailboxSettings', 'userPrincipalName',];
     private
         $cachePrefix,
-        $sessionPrefix='ms-graph-oauth',
-        /**@var \Illuminate\Contracts\Cache\Repository **/
+        $sessionPrefix = 'ms-graph-oauth',
+        /**@var \Illuminate\Contracts\Cache\Repository * */
         $cache;
 
     public function __construct(array $oauth_opt)
     {
         $this->oauth_opt = $oauth_opt;
-        $this->cachePrefix = config('ms-graph.cache_prefix','ms-graph');
-        $this->cache = Cache::store(config('ms-graph.cache_driver','file'));
+        $this->cachePrefix = config('ms-graph.cache_prefix', 'ms-graph');
+        $this->cache = Cache::store(config('ms-graph.cache_driver', 'file'));
     }
 
 
@@ -37,16 +37,19 @@ class MsOAuth
         return new  GenericProvider($this->oauth_opt);
     }
 
-    public function getAuthorizationUrl(){
+    public function getAuthorizationUrl()
+    {
         return $this->getOauthClient()->getAuthorizationUrl();
     }
+
     /**
      * Redirects to Microsoft login
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function redirectToAuthorizationUrl(){
+    public function redirectToAuthorizationUrl(array $options = [])
+    {
         $oauthClient = $this->getOauthClient();
-        $authUrl = $oauthClient->getAuthorizationUrl();
+        $authUrl = $oauthClient->getAuthorizationUrl($options);
 
         // Save client state so we can validate in callback
         session([$this->sessionPrefix . '.oauthState' => $oauthClient->getState()]);
@@ -58,13 +61,14 @@ class MsOAuth
     /**
      * User login callback
      * @param Request $request
-     * @throws InvalidAuthState
+     * @return \Microsoft\Graph\Model\User|null
      * @throws LoginException
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Microsoft\Graph\Exception\GraphException
-     * @return \Microsoft\Graph\Model\User|null
+     * @throws InvalidAuthState
      */
-    public function loginCallback(Request $request){
+    public function loginCallback(Request $request)
+    {
         if (!$request)
             $request = request();
         // Validate state
@@ -101,14 +105,14 @@ class MsOAuth
 
 
                 //TODO: check,
-                $user = $graph->createRequest('GET', '/me?$select='.implode(',',$this->userFields))
+                $user = $graph->createRequest('GET', '/me?$select=' . implode(',', $this->userFields))
                     ->setReturnType(MsUser::class)
                     ->execute();
-                /**@var MsUser $user**/
+                /**@var MsUser $user * */
 
-                if($user->getId()){
+                if ($user->getId()) {
                     //SAVE ACCESS TOKEN
-                    $this->saveToken('id:'.$user->getId(),$accessToken);
+                    $this->saveToken('id:' . $user->getId(), $accessToken);
                 }
                 return $user;
                 ///---
@@ -121,32 +125,36 @@ class MsOAuth
     }
 
     /**
-     * @return AccessTokenInterface|null
+     * Get token given a Microsof User id
+     * @param string $msId Microsoft user id
+     * @return AccessTokenInterface|null Token or null if token is not present
      */
-    public function getUserAccessToken($msId){
+    public function getUserAccessToken($msId)
+    {
         //TODO
-        return  $this->getToken('id:'.$id,function (){
-             return null;//if not saved return null (need login)
-        },true);
+        return $this->getToken('id:' . $msId, function () {
+            return null;//if not saved return null (need login)
+        }, true);
     }
 
     /**
      * @return AccessTokenInterface|null
      */
-    public function getServerAccessToken(){
-        return  $this->getToken('serverToken',function (){
+    public function getServerAccessToken()
+    {
+        return $this->getToken('serverToken', function () {
             /// GET NEW SERVER TOKEN ///
             $oauthClient = $this->getOauthClient();
             try {
                 // Try to get an access token using the client credentials grant.
-                return $oauthClient->getAccessToken('client_credentials',[
+                return $oauthClient->getAccessToken('client_credentials', [
                     'scope' => 'https://graph.microsoft.com/.default'
                 ]);
             } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
                 // Failed to get the access token
                 throw $e;
             }
-        },true);
+        }, true);
     }
 
     /**
@@ -155,24 +163,26 @@ class MsOAuth
      * @return void
      * @throws \Psr\SimpleCache\InvalidArgumentException
      */
-    protected function saveToken($scope,AccessTokenInterface $token)
+    protected function saveToken($scope, AccessTokenInterface $token)
     {
         $this->cache->set($this->cachePrefix . '.' . $scope, $token);
     }
-        /**
+
+    /**
      * Get token from cache or refresh it
      * @param string $scope
      * @param Callable $onEmpty
      * @param boolean $autoRefresh Automatically refresh token if expired
      * @return AccessTokenInterface|null
      */
-    protected function getToken($scope,Callable $onEmpty,$autoRefresh=true){
-        $token = $this->cache->get($this->cachePrefix.'.'.$scope,$onEmpty);
+    protected function getToken($scope, callable $onEmpty, $autoRefresh = true)
+    {
+        $token = $this->cache->get($this->cachePrefix . '.' . $scope, $onEmpty);
 
-        /**@var AccessTokenInterface $token**/
-        if($token->hasExpired()){
+        /**@var AccessTokenInterface $token * */
+        if ($token && $token->hasExpired()) {
             //Must refresh
-            $token = $this->refreshToken($token,$scope,true);
+            $token = $this->refreshToken($token, $scope, true);
         }
 
         return $token;
@@ -185,19 +195,19 @@ class MsOAuth
      * @param boolean $update update cache
      * @return AccessTokenInterface|null
      */
-    protected function refreshToken(AccessTokenInterface $token,$scope,$update=true){
+    protected function refreshToken(AccessTokenInterface $token, $scope, $update = true)
+    {
         try {
             $oauthClient = $this->getOauthClient();
             $newToken = $oauthClient->getAccessToken('refresh_token', [
                 'refresh_token' => session('refreshToken')
             ]);
 
-            if(!empty($scope) && $update){
-                $this->cache->set($this->cachePrefix.'.'.$scope,$newToken);
+            if (!empty($scope) && $update) {
+                $this->cache->set($this->cachePrefix . '.' . $scope, $newToken);
             }
             return $newToken;
-        }
-        catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
+        } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
             //Token refresh failed
             return null;
         }
@@ -208,7 +218,8 @@ class MsOAuth
      * @param string $scope
      * @return void
      */
-    protected function clearToken($scope){
-        $this->cache->forget($this->cachePrefix.'.'.$scope);
+    protected function clearToken($scope)
+    {
+        $this->cache->forget($this->cachePrefix . '.' . $scope);
     }
 }

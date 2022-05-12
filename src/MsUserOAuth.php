@@ -34,8 +34,6 @@ class MsUserOAuth extends MsOAuth
         return new  GenericProvider($this->oauth_opt);
     }
 
-
-
     /**
      * Refresh token
      * @param AccessTokenInterface $token
