@@ -29,13 +29,40 @@ class MsUser extends \Microsoft\Graph\Model\User
     }
 
     /**
-     * @param $user
      * @return MsDrive[]|null
      */
-    function drives($user){
+    function drives(){
         return MsGraph::User()->getDrives($this);
     }
 
+    /**
+     * @param \Microsoft\Graph\Model\Group|string $group
+     * @return \Microsoft\Graph\Http\GraphResponse|mixed
+     */
+    function addToGroup($group){
+        return \MsGraph::Group()->addMember($group,$this);
+    }
+
+    /**
+     * @return \Microsoft\Graph\Model\Group[]
+     */
+    function memberOfGroups(){
+        return \MsGraph::Group()->getMemberOf($this);
+    }
+
+    /**
+     * @return \Microsoft\Graph\Model\Group[]
+     */
+    function transitiveMemberOfGroups(){
+        return \MsGraph::Group()->getTransitiveMemberOf($this);
+    }
+
+    /**
+     * @return \Microsoft\Graph\Model\Team[]
+     */
+    function joinedTeams(){
+        return \MsGraph::Group()->getJoinedTeams($this);
+    }
 
     function __get($k){
         switch($k){

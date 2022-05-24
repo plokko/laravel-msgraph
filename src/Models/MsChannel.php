@@ -10,42 +10,16 @@ use \MsGraph;
  * @property-read string $description
  * @property-read string $mail
  * @property-read string $createdDateTime
+ * @property-read string $webUrl
  */
-class MsGroup extends \Microsoft\Graph\Model\Group
+class MsChannel extends \Microsoft\Graph\Model\Channel
 {
-
-    public function listUserCalendars(){
-        return MsGraph::User()->listCalendars($this);
-    }
-
-    public function getUserCalendar($calendar){
-        return MsGraph::User()->getCalendar($calendar);
-    }
-
-    /**
-     * @return MsDrive|null
-     */
-    function drive(){
-        return MsGraph::User()->getDrive($this);
-    }
-
-    /**
-     * @param $user
-     * @return MsDrive[]|null
-     */
-    function drives($user){
-        return MsGraph::User()->getDrives($this);
-    }
-
-    function channels(){
-
-    }
-
-
     function __get($k){
         switch($k){
             case 'id':
                 return $this->getId();
+            case 'webUrl':
+                return $this->getWebUrl();
             case 'description':
                 return $this->getDescription();
             case 'displayName':

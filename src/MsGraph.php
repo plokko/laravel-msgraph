@@ -70,6 +70,13 @@ class MsGraph
     }
 
     /**
+     * @return TeamInterface
+     */
+    function Team(){
+        return new TeamInterface($this);
+    }
+
+    /**
      * @return UserAuth
      */
     function Auth(){

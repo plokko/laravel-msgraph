@@ -49,7 +49,7 @@ class UserInterface extends BaseEntity{
      * @return MsCalendar[]
      */
     function listCalendars($user){
-        $user_id = $user instanceof MsUser? $user->getId():$user;
+        $user_id = $user instanceof \Microsoft\Graph\Model\User? $user->getId():$user;
 
         return $this->msGraph->graph()
             ->createRequest('get',"/users/$user_id/calendars")
@@ -78,7 +78,7 @@ class UserInterface extends BaseEntity{
      * @throws \Microsoft\Graph\Exception\GraphException
      */
     function listCalendarEvents($user,$calendar=null){
-        $user_id = $user instanceof MsUser? $user->getId():$user;
+        $user_id = $user instanceof \Microsoft\Graph\Model\User? $user->getId():$user;
         $calendar_id = ($calendar && $calendar instanceof Calendar)?$calendar->getId():$calendar;
 
         return $this->msGraph->graph()
@@ -225,7 +225,7 @@ class UserInterface extends BaseEntity{
      * @return \plokko\MsGraph\Models\MsDrive
      */
     function getDrive($user){
-        $user_id = $user instanceof MsUser? $user->getId():$user;
+        $user_id = $user instanceof \Microsoft\Graph\Model\User? $user->getId():$user;
 
         return $this->msGraph->graph()
             ->createRequest('get',"/users/$user_id/drive")
@@ -238,7 +238,7 @@ class UserInterface extends BaseEntity{
      * @return \plokko\MsGraph\Models\MsDrive[]
      */
     function getDrives($user){
-        $user_id = $user instanceof MsUser? $user->getId():$user;
+        $user_id = $user instanceof \Microsoft\Graph\Model\User? $user->getId():$user;
 
         return $this->msGraph->graph()
             ->createRequest('get',"/users/$user_id/drives")
@@ -251,9 +251,10 @@ class UserInterface extends BaseEntity{
      * @return Group[]
      */
     function getMemberOf($user){
-        $user_id = $user instanceof MsUser? $user->getId():$user;
+        $user_id = $user instanceof \Microsoft\Graph\Model\User? $user->getId():$user;
 
-        return $graph->createRequest('get',"/users/$user_id/memberOf")
+        return $this->msGraph->graph()
+            ->createRequest('get',"/users/$user_id/memberOf")
             ->setReturnType(\Microsoft\Graph\Model\Group::class)
             ->execute();
     }
@@ -263,22 +264,32 @@ class UserInterface extends BaseEntity{
      * @return Group[]
      */
     function getTransitiveMemberOf($user){
-        $user_id = $user instanceof MsUser? $user->getId():$user;
+        $user_id = $user instanceof \Microsoft\Graph\Model\User? $user->getId():$user;
 
-        return $graph->createRequest('get',"/users/$user_id/transitiveMemberOf")
+        return $this->msGraph->graph()
+            ->createRequest('get',"/users/$user_id/transitiveMemberOf")
             ->setReturnType(\Microsoft\Graph\Model\Group::class)
             ->execute();
     }
 
     /**
-     * @param MsUser|string $user Microsoft user or id
+     * @param \Microsoft\Graph\Model\User|string $user Microsoft user or id
      * @return Team[]
      */
     function getJoinedTeams($user){
-        $user_id = $user instanceof MsUser? $user->getId():$user;
+        $user_id = $user instanceof \Microsoft\Graph\Model\User? $user->getId():$user;
 
-        return $graph->createRequest('get',"/users/$user_id/joinedTeams")
+        return $this->msGraph->graph()
+            ->createRequest('get',"/users/$user_id/joinedTeams")
             ->setReturnType(\Microsoft\Graph\Model\Team::class)
             ->execute();
+    }
+
+    /**
+     * @param \Microsoft\Graph\Model\Group|string $group
+     * @param \Microsoft\Graph\Model\User|string $user Microsoft user or id
+     **/
+    function addToGroup($user,$group){
+        return \MsGraph::Group()->addMember($group,$user);
     }
 }
