@@ -3,7 +3,8 @@
 namespace plokko\MsGraph\Entities;
 
 use plokko\MsGraph\MsGraph;
-use \Microsoft\Graph\Model\User as MsUser;
+//use \Microsoft\Graph\Model\User as MsUser;
+use plokko\MsGraph\Models\MsUser;
 
 class UserList extends BaseEntity
 {

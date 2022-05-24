@@ -8,8 +8,10 @@ use \League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model\User as MsUser;
-use plokko\MsGraph\Entities\User;
-use plokko\MsGraph\Entities\UserAuth;
+use plokko\MsGraph\Entities\DriveInterface;
+use plokko\MsGraph\Entities\GroupInterface;
+use plokko\MsGraph\Entities\UserInterface;
+use plokko\MsGraph\Entities\UserAuthInterface;
 use plokko\MsGraph\Exceptions\InvalidAuthState;
 use plokko\MsGraph\Exceptions\LoginException;
 
@@ -49,16 +51,28 @@ class MsGraph
 
 
     /**
-     * @return User
+     * @return UserInterface
      */
     function User(){
-        return new User($this);
+        return new UserInterface($this);
+    }
+    /**
+     * @return DriveInterface
+     */
+    function Drive(){
+        return new DriveInterface($this);
+    }
+    /**
+     * @return GroupInterface
+     */
+    function Group(){
+        return new GroupInterface($this);
     }
 
     /**
      * @return UserAuth
      */
     function Auth(){
-        return new UserAuth($this,$this->oauth);
+        return new UserAuthInterface($this,$this->oauth);
     }
 }
