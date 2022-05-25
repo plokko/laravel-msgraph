@@ -42,6 +42,13 @@ class MsUser extends \Microsoft\Graph\Model\User
     function addToGroup($group){
         return \MsGraph::Group()->addMember($group,$this);
     }
+    /**
+     * @param \Microsoft\Graph\Model\Group|string $group
+     * @return \Microsoft\Graph\Http\GraphResponse|mixed
+     */
+    function removeFromGroup($group){
+        return \MsGraph::Group()->removeMember($group,$this);
+    }
 
     /**
      * @return \Microsoft\Graph\Model\Group[]

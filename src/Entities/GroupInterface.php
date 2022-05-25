@@ -79,20 +79,15 @@ class GroupInterface extends BaseEntity
 
     /**
      * @param \Microsoft\Graph\Model\Group|string $group
-     * @param \Microsoft\Graph\Model\User|string $user Microsoft user or id to add
+     * @param \Microsoft\Graph\Model\User|string $user Microsoft user or id to remove from group
      **/
-    function addMember($group,$user){
+    function removeMember($group,$user){
         $group_id = $group instanceof \Microsoft\Graph\Model\Group ? $group->getId():$group;
         $user_id = $user instanceof \Microsoft\Graph\Model\User? $user->getId():$user;
-        //POST /groups/{group-id}/members/$ref
+        //DELETE /groups/{id}/members/{id}/$ref
 
         return $this->msGraph->graph()
-            ->createRequest('post',"/groups/$group_id/members/\$ref")
-            ->attachBody([
-                '@odata.id' => "https://graph.microsoft.com/v1.0/users/$user_id"
-            ])
-
-            //->setReturnType(\Microsoft\Graph\Model\Team::class)
+            ->createRequest('delete',"/groups/$group_id/members/$user_id/\$ref")
             ->execute();
     }
 }

@@ -292,4 +292,12 @@ class UserInterface extends BaseEntity{
     function addToGroup($user,$group){
         return \MsGraph::Group()->addMember($group,$user);
     }
+
+    /**
+     * @param \Microsoft\Graph\Model\Group|string $group
+     * @param \Microsoft\Graph\Model\User|string $user Microsoft user or id
+     **/
+    function removeFromGroup($user,$group){
+        return \MsGraph::Group()->removeMember($group,$user);
+    }
 }
