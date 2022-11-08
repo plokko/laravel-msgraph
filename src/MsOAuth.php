@@ -37,9 +37,9 @@ class MsOAuth
         return new  GenericProvider($this->oauth_opt);
     }
 
-    public function getAuthorizationUrl()
+    public function getAuthorizationUrl(array $options = [])
     {
-        return $this->getOauthClient()->getAuthorizationUrl();
+        return $this->getOauthClient()->getAuthorizationUrl($options);
     }
 
     /**
