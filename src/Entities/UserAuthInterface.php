@@ -30,9 +30,9 @@ class UserAuthInterface extends BaseEntity
      * Redirects to Microsoft login
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function redirectToLogin()
+    public function redirectToLogin(array $options = [])
     {
-        return $this->oauth->redirectToAuthorizationUrl();
+        return $this->oauth->redirectToAuthorizationUrl($options);
     }
 
     public function redirectToSelectUser()
