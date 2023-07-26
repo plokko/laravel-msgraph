@@ -345,12 +345,16 @@ class UserInterface extends BaseEntity
     {
         $user_id = $user instanceof \Microsoft\Graph\Model\User ? $user->getId() : $user;
 
+        $mapSkus = fn($arr) => array_map(fn($e) => $e instanceof \Microsoft\Graph\Model\SubscribedSku ? ["skuId" => $e->getSkuId(),] : $e, $arr);
+
+        $data = [
+            'addLicenses' => $mapSkus($addLicenses),
+            'removeLicenses' => $mapSkus($removeLicenses),
+        ];
+
         return $this->msGraph->graph()
             ->createRequest('post', "/users/$user_id/assignLicense")
-            ->attachBody([
-                'addLicenses' => $addLicenses,
-                'removeLicenses' => $removeLicenses,
-            ])
+            ->attachBody($data)
             ->execute();
     }
 }

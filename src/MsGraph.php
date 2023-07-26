@@ -85,6 +85,9 @@ class MsGraph
     }
 
 
+    /**
+     * @return MsSubscribedSku[]
+     */
     function listSubscribedSKU()
     {
         return $this->graph()
