@@ -71,6 +71,10 @@ class MsUser extends \Microsoft\Graph\Model\User
         return \MsGraph::Group()->getJoinedTeams($this);
     }
 
+    function listLicenses(){
+        return \MsGraph::User()->listLicenses($this);
+    }
+
     function __get($k){
         switch($k){
             case 'id':

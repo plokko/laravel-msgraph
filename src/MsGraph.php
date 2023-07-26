@@ -14,6 +14,7 @@ use plokko\MsGraph\Entities\UserInterface;
 use plokko\MsGraph\Entities\UserAuthInterface;
 use plokko\MsGraph\Exceptions\InvalidAuthState;
 use plokko\MsGraph\Exceptions\LoginException;
+use plokko\MsGraph\Models\MsSubscribedSku;
 
 class MsGraph
 {
@@ -81,5 +82,14 @@ class MsGraph
      */
     function Auth(){
         return new UserAuthInterface($this,$this->oauth);
+    }
+
+
+    function listSubscribedSKU()
+    {
+        return $this->graph()
+            ->createRequest('get', "/subscribedSkus")
+            ->setReturnType(MsSubscribedSku::class)
+            ->execute();
     }
 }
