@@ -85,6 +85,12 @@ class MsUser extends \Microsoft\Graph\Model\User
         return \MsGraph::User()->listLicenses($this);
     }
 
+
+    /**
+     * @param \Microsoft\Graph\Model\User|string $user Microsoft user object or id
+     *
+     * @return \Microsoft\Graph\Model\LicenseDetails
+     **/
     function addLicenses(array $licenses)
     {
         return \MsGraph::User()->assignLicense($this, $licenses, []);
